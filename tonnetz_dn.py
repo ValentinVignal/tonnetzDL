@@ -8,6 +8,8 @@
 # If you have any questions regarding the code, please email to c.chuan@miami.edu
 # ==============================================================================
 
+#Valentin Vignal
+
 import tensorflow as tf
 import numpy as np
 import pickle
@@ -49,7 +51,7 @@ else:
 
 # autoencoder pre-training
 def gen_data_cnn():
-    l = pickle.load(file(vocab_file, 'rb'))
+    l = pickle.load(open(vocab_file, 'rb'))
     return l
 
 
@@ -74,7 +76,7 @@ def gen_data(infile):
         f = open(infile, 'r')
         l = [list(map(float, line.split(','))) for line in f]
     else:
-        l = pickle.load(file(infile, 'rb'))
+        l = pickle.load(open(infile, 'rb'))
     return l
 
 

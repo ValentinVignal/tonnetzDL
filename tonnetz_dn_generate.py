@@ -8,6 +8,8 @@
 # If you have any questions regarding the code, please email to c.chuan@miami.edu
 # ==============================================================================
 
+# Valentin Vignal
+
 from __future__ import division
 import tensorflow as tf
 import numpy as np

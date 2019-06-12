@@ -99,3 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Perso exclusions
+pickle_files/
+sequences/
+trained_tonnetz_model/
+
+#Pycharm
+.idea/
