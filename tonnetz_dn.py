@@ -22,7 +22,15 @@ parser.add_argument('--valid', type=str, help='pickle file for validation')
 parser.add_argument('--test', type=str, help='pickle file for testing')
 parser.add_argument('--CNNepoch', type=int, help='training epoch for CNN autoencoder')
 parser.add_argument('--LSTMepoch', type=int, help='training epoch for LSTM')
+
+parser.add_argument('--no-cuda', action='store_true', default=False,
+                        help='disables CUDA training')
+parser.add_argument('--gpu', type=str, default='0',
+                        help='What GPU to use')
+
 args = parser.parse_args()
+
+tf.device('/device:GPU:' + args.gpu) if not args.no_cuda else None
 
 vocab_file = args.vocab
 train_file = args.train
@@ -301,43 +309,43 @@ def build_rnn_cell(cell_type, state_size):
 
 def train_network(g, num_epochs, num_steps, batch_size=32, verbose=True, save=True):
     tf.set_random_seed(2345)
-    with tf.Session() as sess:
-        with tf.device('/cpu:0'):
-            sess.run(tf.global_variables_initializer())
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    with tf.Session(config=config) as sess:
+        sess.run(tf.global_variables_initializer())
 
-            # pre_training = True
-            if (True):
-                # pre-training
-                print("CNN autoencoder pre-training starts...")
-                for idx, batch in enumerate(gen_epochs_cnn(autoencoder_params['n_epochs'], lstm_params['batch_size'])):
-                    training_losses = 0
-                    print("epoch", idx)
-                    step = 0
-                    for x_batch in batch:
-                        step = step + 1
-                        feed_dict = {g['x']: x_batch}
-                        _, b_loss, batch_outputs, final_w, weight2, weight1, final_b, bias2, bias1 = sess.run(
-                            [g['training_op_cnn'],
-                             g['loss_cnn'],
-                             g['autoencoder_outputs'],
-                             g['final_w'],
-                             g['weight2'],
-                             g['weight1'],
-                             g['final_b'],
-                             g['bias2'],
-                             g['bias1']],
-                            feed_dict)
-                        #print("batch", step, ", batch loss:", b_loss)
-                        training_losses = training_losses + b_loss
-                        if idx == autoencoder_params['n_epochs'] - 1:
-                            if step == 1:
-                                final_outputs = batch_outputs
-                            else:
-                                final_outputs = np.append(final_outputs, batch_outputs, axis=0)
+        # pre_training = True
+        if (True):
+            # pre-training
+            print("CNN autoencoder pre-training starts...")
+            for idx, batch in enumerate(gen_epochs_cnn(autoencoder_params['n_epochs'], lstm_params['batch_size'])):
+                training_losses = 0
+                print("epoch", idx)
+                step = 0
+                for x_batch in batch:
+                    step = step + 1
+                    feed_dict = {g['x']: x_batch}
+                    _, b_loss, batch_outputs, final_w, weight2, weight1, final_b, bias2, bias1 = sess.run(
+                        [g['training_op_cnn'],
+                         g['loss_cnn'],
+                         g['autoencoder_outputs'],
+                         g['final_w'],
+                         g['weight2'],
+                         g['weight1'],
+                         g['final_b'],
+                         g['bias2'],
+                         g['bias1']],
+                        feed_dict)
+                    # print("batch", step, ", batch loss:", b_loss)
+                    training_losses = training_losses + b_loss
+                    if idx == autoencoder_params['n_epochs'] - 1:
+                        if step == 1:
+                            final_outputs = batch_outputs
+                        else:
+                            final_outputs = np.append(final_outputs, batch_outputs, axis=0)
 
-                    training_losses = training_losses / step
-                    print("epoch average loss:", training_losses)
-
+                training_losses = training_losses / step
+                print("epoch average loss:", training_losses)
 
             # LSTM: using the input from CNN
             training_losses = []
