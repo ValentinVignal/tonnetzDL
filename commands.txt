@@ -4,3 +4,6 @@ python tonnetz_dn.py pickle_files/pickle_files/MuseData_train_tonnetz_vocab_p2.p
 option :
 --valid pickle_files/pickle_files/MuseData_valid_tonnetz_vocab_p2.pickle
 --test pickle_files/pickle_files/MuseData_test_tonnetz_p2.pickle
+
+Test :
+python tonnetz_dn_generate.py pickle_files/pickle_files/MuseData_train_tonnetz_vocab_p2.pickle pickle_files/pickle_files/MuseData_test_tonnetz_p2.pickle

@@ -20,11 +20,20 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('vocab', type=str, help='vocabulary pickle file for tonnetz autoencoder (Required)')
 parser.add_argument('test', type=str, help='pickle file for testing (Required)')
+
+parser.add_argument('--no-cuda', action='store_true', default=False,
+                        help='disables CUDA training')
+parser.add_argument('--gpu', type=str, default='0',
+                        help='What GPU to use')
+
 args = parser.parse_args()
 vocab_file = args.vocab
 test_file = args.test
 
-tonnetz_template = genfromtxt('tonnetz_template_row.txt', delimiter=',')
+tonnetz_template = genfromtxt('pickle_files/pickle_files/tonnetz_template_row.txt', delimiter=',')
+tf.device('/device:GPU:' + args.gpu) if not args.no_cuda else None
+
+
 
 # autoencoder pre-training
 def gen_data_cnn():
@@ -48,7 +57,7 @@ def gen_epochs_cnn(n, batch_size):
 
 # LSTM
 def gen_data(infile):
-    l = pickle.load(file(infile, 'rb'))
+    l = pickle.load(open(infile, 'rb'))
     return l
 
 def gen_batch(raw_data, batch_size, num_steps):
@@ -97,9 +106,12 @@ pred_params['threshold'] = 0.3
 pred_params['pred_file'] = 'Testpred_' + pred_params['policy'] + str(pred_params['threshold'])+'.pickle'
 pred_params['groundtruth_file'] = 'Testgroundtruth_' + pred_params['policy'] + str(pred_params['threshold']) + '.pickle'
 
+
 def generate_characters(checkpoint):
 
-    with tf.Session() as sess:
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    with tf.Session(config=config) as sess:
 
         sess.run(tf.global_variables_initializer())
         meta_file = checkpoint + '.meta'

@@ -104,6 +104,7 @@ ENV/
 pickle_files/
 sequences/
 trained_tonnetz_model/
+save/
 
 #Pycharm
 .idea/
